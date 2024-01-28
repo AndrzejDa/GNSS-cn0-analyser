@@ -6,9 +6,9 @@ from pprint import pprint
 class Location:
     def __init__(self) -> None:
         self.latitude = 0
-        self.lat_indicator = 'N'
+        self.lat_indicator = ''
         self.longitude = 0
-        self.lon_indicator = 'E'
+        self.lon_indicator = ''
         self.num_of_satellites = 0
         self.list_of_satellites = list()
         self.headers = list()
@@ -16,7 +16,6 @@ class Location:
     def get_id(self):
         for _ in range(4):
             sentence = read_sentence().split(',')
-            #print(sentence)
             if sentence[0][-3:] == "GSA":
                 for i in range(3,14):
                     if sentence[i] != '':
@@ -34,7 +33,6 @@ class Location:
         loop = 0
         while loop != len(self.headers):
             sentence = read_sentence().split(',')
-            #print(sentence)
             temp = sentence[-1].split('*')
             sentence[-1] = temp[0]
             if sentence[0][-3:] == "GSV":
@@ -78,13 +76,17 @@ def read_sentence():
     
 def find_GNGGA():
     sentence = read_sentence().split(',')
-    #print(sentence)
     if sentence[0][-3:] == "GGA":
-        loc.latitude = float(sentence[2])
-        loc.lat_indicator = sentence[3]
-        loc.longitude = float(sentence[4])
-        loc.lon_indicator = sentence[5]
-        loc.num_of_satellites = int(sentence[7])
+        if sentence[2] != '':
+            loc.latitude = float(sentence[2])
+        if sentence[3] != '':    
+            loc.lat_indicator = sentence[3]
+        if sentence[4] != '':
+            loc.longitude = float(sentence[4])
+        if sentence[5] != '':    
+            loc.lon_indicator = sentence[5]
+        if sentence[7] != '':
+            loc.num_of_satellites = int(sentence[7])
         return True
     
 
@@ -105,7 +107,7 @@ except:
 
 send_command("AT")  #test cmd
 send_command("AT+CGNSPWR=1")    #turn on GNSS module
-send_command("AT+CGNSTST=1")  #show NMEA data once
+send_command("AT+CGNSTST=1")  #show NMEA continuous data
 
 while True:
     start = time.time()
@@ -115,8 +117,8 @@ while True:
         loc.get_id()
         loc.get_cn0()
         pprint(loc.list_of_satellites)
-    end = time.time()
-    print(f"czas trwania: {end-start}")
+        end = time.time()
+        print(f"czas trwania: {end-start}")
         
 ser.close()
 
